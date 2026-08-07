@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Underwriting Console"
+description = "A full-stack insurance underwriting workspace for customers, underwriters, and admins. It supports authenticated applications, document intake, transparent risk review, fraud signals, underwriting decisions, application history, AI-assisted policy guidance, and operational analytics with modular service boundaries for future ML, LLM, RAG, and agent integrations."
+version = "1.0.0"
+id = "artifacts/underwriting-console"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25854
+
+[services.development]
+run = "pnpm --filter @workspace/underwriting-console run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/underwriting-console", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/underwriting-console/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25854"
+BASE_PATH = "/"
