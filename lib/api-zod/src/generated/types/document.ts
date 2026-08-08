@@ -5,7 +5,10 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { DocumentInput } from './documentInput';
 
-export interface HealthStatus {
+export type Document = DocumentInput & {
+  id: string;
   status: string;
-}
+  uploadedAt: string;
+};

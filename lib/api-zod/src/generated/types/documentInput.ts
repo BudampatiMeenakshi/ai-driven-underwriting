@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface DocumentInput {
+  name: string;
+  type: string;
+  /** @minimum 0 */
+  size: number;
+  objectPath: string;
 }

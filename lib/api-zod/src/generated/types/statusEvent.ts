@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
+export interface StatusEvent {
+  id: string;
   status: string;
+  label: string;
+  occurredAt: string;
+  /** @nullable */
+  actor?: string | null;
 }

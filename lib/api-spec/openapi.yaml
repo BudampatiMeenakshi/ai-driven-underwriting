@@ -10,6 +10,16 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication and current user
+  - name: applications
+    description: Customer insurance applications
+  - name: underwriter
+    description: Underwriter review workspace
+  - name: analytics
+    description: Portfolio analytics
+  - name: chat
+    description: AI assistant
 paths:
   /healthz:
     get:
@@ -24,6 +34,305 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a customer or underwriter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "200":
+          description: Registered user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the current demo session user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /customer/dashboard:
+    get:
+      operationId: getCustomerDashboard
+      tags: [applications]
+      summary: Get the customer dashboard summary
+      responses:
+        "200":
+          description: Customer dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDashboard"
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List applications
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+    post:
+      operationId: createApplication
+      tags: [applications]
+      summary: Create an insurance application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationInput"
+      responses:
+        "201":
+          description: Created application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+  /applications/{applicationId}:
+    get:
+      operationId: getApplication
+      tags: [applications]
+      summary: Get an application
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationDetail"
+  /applications/{applicationId}/documents:
+    get:
+      operationId: listDocuments
+      tags: [applications]
+      summary: List application documents
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      operationId: addDocument
+      tags: [applications]
+      summary: Add uploaded document metadata
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentInput"
+      responses:
+        "201":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+  /applications/{applicationId}/submit:
+    post:
+      operationId: submitApplication
+      tags: [applications]
+      summary: Submit an application for underwriting
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Submitted application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+  /applications/{applicationId}/decision:
+    get:
+      operationId: getDecision
+      tags: [applications]
+      summary: Get risk, fraud, and underwriting outputs
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Decision
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Decision"
+    patch:
+      operationId: updateDecision
+      tags: [underwriter]
+      summary: Update an underwriter decision
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionUpdate"
+      responses:
+        "200":
+          description: Updated decision
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Decision"
+  /applications/{applicationId}/status-history:
+    get:
+      operationId: listStatusHistory
+      tags: [applications]
+      summary: Get application status history
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Status history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusEvent"
+  /underwriter/dashboard:
+    get:
+      operationId: getUnderwriterDashboard
+      tags: [underwriter]
+      summary: Get the underwriting work queue summary
+      responses:
+        "200":
+          description: Underwriter dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnderwriterDashboard"
+  /underwriter/applications:
+    get:
+      operationId: listUnderwriterApplications
+      tags: [underwriter]
+      summary: List applications for underwriting
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Underwriting queue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+  /analytics:
+    get:
+      operationId: getAnalytics
+      tags: [analytics]
+      summary: Get underwriting portfolio analytics
+      responses:
+        "200":
+          description: Portfolio analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analytics"
+  /chat/messages:
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: Send a question to the insurance assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatInput"
+      responses:
+        "200":
+          description: Assistant response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +342,178 @@ components:
           type: string
       required:
         - status
+    User:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        role:
+          type: string
+          enum: [customer, underwriter, admin]
+    RegisterInput:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name: { type: string, minLength: 2 }
+        email: { type: string }
+        password: { type: string, minLength: 8 }
+        role:
+          type: string
+          enum: [customer, underwriter, admin]
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+    ApplicationInput:
+      type: object
+      required: [product, coverageAmount, applicantName, applicantEmail]
+      properties:
+        product: { type: string }
+        coverageAmount: { type: number, minimum: 0 }
+        applicantName: { type: string }
+        applicantEmail: { type: string }
+        dateOfBirth: { type: ["string", "null"] }
+        annualIncome: { type: ["number", "null"] }
+        occupation: { type: ["string", "null"] }
+        address: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+    Application:
+      type: object
+      required: [id, reference, product, coverageAmount, applicantName, applicantEmail, status, riskScore, fraudScore, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        reference: { type: string }
+        product: { type: string }
+        coverageAmount: { type: number }
+        applicantName: { type: string }
+        applicantEmail: { type: string }
+        status: { type: string }
+        riskScore: { type: number }
+        fraudScore: { type: number }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+    ApplicationDetail:
+      allOf:
+        - $ref: "#/components/schemas/Application"
+        - type: object
+          required: [dateOfBirth, annualIncome, occupation, address, notes]
+          properties:
+            dateOfBirth: { type: ["string", "null"] }
+            annualIncome: { type: ["number", "null"] }
+            occupation: { type: ["string", "null"] }
+            address: { type: ["string", "null"] }
+            notes: { type: ["string", "null"] }
+    DocumentInput:
+      type: object
+      required: [name, type, size, objectPath]
+      properties:
+        name: { type: string }
+        type: { type: string }
+        size: { type: number, minimum: 0 }
+        objectPath: { type: string }
+    Document:
+      allOf:
+        - $ref: "#/components/schemas/DocumentInput"
+        - type: object
+          required: [id, status, uploadedAt]
+          properties:
+            id: { type: string }
+            status: { type: string }
+            uploadedAt: { type: string }
+    Decision:
+      type: object
+      required: [applicationId, riskScore, riskBand, fraudScore, fraudBand, recommendation, rationale, modelStatus, decidedAt]
+      properties:
+        applicationId: { type: string }
+        riskScore: { type: number }
+        riskBand: { type: string }
+        fraudScore: { type: number }
+        fraudBand: { type: string }
+        recommendation: { type: string }
+        rationale:
+          type: array
+          items: { type: string }
+        modelStatus: { type: string }
+        decidedAt: { type: string }
+    DecisionUpdate:
+      type: object
+      required: [recommendation, rationale]
+      properties:
+        recommendation: { type: string }
+        rationale:
+          type: array
+          items: { type: string }
+    StatusEvent:
+      type: object
+      required: [id, status, label, occurredAt]
+      properties:
+        id: { type: string }
+        status: { type: string }
+        label: { type: string }
+        occurredAt: { type: string }
+        actor: { type: ["string", "null"] }
+    CustomerDashboard:
+      type: object
+      required: [activeApplications, approvedCoverage, nextAction, recentApplications]
+      properties:
+        activeApplications: { type: number }
+        approvedCoverage: { type: number }
+        nextAction: { type: string }
+        recentApplications:
+          type: array
+          items: { $ref: "#/components/schemas/Application" }
+    UnderwriterDashboard:
+      type: object
+      required: [inReview, highRisk, fraudSignals, avgTurnaroundHours, recentApplications]
+      properties:
+        inReview: { type: number }
+        highRisk: { type: number }
+        fraudSignals: { type: number }
+        avgTurnaroundHours: { type: number }
+        recentApplications:
+          type: array
+          items: { $ref: "#/components/schemas/Application" }
+    Analytics:
+      type: object
+      required: [monthlyVolume, approvalRate, fraudRate, averageRiskScore, statusBreakdown, monthlyTrend]
+      properties:
+        monthlyVolume: { type: number }
+        approvalRate: { type: number }
+        fraudRate: { type: number }
+        averageRiskScore: { type: number }
+        statusBreakdown:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label: { type: string }
+              value: { type: number }
+        monthlyTrend:
+          type: array
+          items:
+            type: object
+            required: [month, applications, approved, declined]
+            properties:
+              month: { type: string }
+              applications: { type: number }
+              approved: { type: number }
+              declined: { type: number }
+    ChatInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1 }
+        context: { type: ["string", "null"] }
+    ChatResponse:
+      type: object
+      required: [message, source, disclaimer]
+      properties:
+        message: { type: string }
+        source: { type: string }
+        disclaimer: { type: string }
 

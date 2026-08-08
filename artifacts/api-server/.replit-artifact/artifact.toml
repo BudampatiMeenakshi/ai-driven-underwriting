@@ -10,7 +10,7 @@ name = "API Server"
 paths = ["/api"]
 
 [services.development]
-run = "pnpm --filter @workspace/api-server run dev"
+run = "uv run uvicorn main:app --app-dir /home/runner/workspace --host 0.0.0.0 --port 8080"
 
 [services.production]
 
@@ -22,7 +22,7 @@ NODE_ENV = "production"
 
 [services.production.run]
 # we don't run through pnpm to make startup faster in production
-args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+args = ["uv", "run", "uvicorn", "main:app", "--app-dir", "/home/runner/workspace", "--host", "0.0.0.0", "--port", "8080"]
 
 [services.production.run.env]
 PORT = "8080"
